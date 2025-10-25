@@ -20,7 +20,7 @@
 (define-data-var token-name (string-ascii 32) "Vote Token")
 (define-data-var token-symbol (string-ascii 10) "VOTE")
 (define-data-var token-decimals uint u6)
-(define-data-var token-uri (optional (string-utf8 256)) (some u"https://vote-dao.example.com/token-metadata.json"))
+(define-data-var token-uri (optional (string-utf8 256)) (some u"https://sbtcvoter.vercel.app/token-metadata.json"))
 (define-data-var total-supply uint u0)
 
 ;; SIP-010 Functions

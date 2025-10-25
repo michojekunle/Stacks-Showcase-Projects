@@ -1,0 +1,32 @@
+---
+id: 0
+name: Testnet deployment
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: governance
+            expected-sender: ST2NDW06SBGDMJ8XYSAXQSXZ10B38P4BQMR1K99FS
+            cost: 63340
+            path: contracts/governance.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: treasury
+            expected-sender: ST2NDW06SBGDMJ8XYSAXQSXZ10B38P4BQMR1K99FS
+            cost: 31800
+            path: contracts/treasury.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: vote-token
+            expected-sender: ST2NDW06SBGDMJ8XYSAXQSXZ10B38P4BQMR1K99FS
+            cost: 32960
+            path: contracts/vote-token.clar
+            anchor-block-only: true
+            clarity-version: 3
+      epoch: "3.2"
