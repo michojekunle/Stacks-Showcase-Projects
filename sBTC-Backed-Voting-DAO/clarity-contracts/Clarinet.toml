@@ -5,10 +5,21 @@ authors = []
 telemetry = false
 cache_dir = './.cache'
 requirements = []
-[contracts.voting-dao]
-path = 'contracts/voting-dao.clar'
+[contracts.governance]
+path = 'contracts/governance.clar'
 clarity_version = 3
 epoch = 'latest'
+
+[contracts.treasury]
+path = 'contracts/treasury.clar'
+clarity_version = 3
+epoch = 'latest'
+
+[contracts.vote-token]
+path = 'contracts/vote-token.clar'
+clarity_version = 3
+epoch = 'latest'
+
 [repl.analysis]
 passes = ['check_checker']
 
