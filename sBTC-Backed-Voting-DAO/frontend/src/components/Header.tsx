@@ -64,7 +64,7 @@ export const Header = () => {
             >
               Mint
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/dashboard"
               className={({ isActive }) =>
                 `text-sm font-medium transition-colors ${
@@ -75,7 +75,7 @@ export const Header = () => {
               }
             >
               Dashboard
-            </NavLink>
+            </NavLink> */}
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export const Header = () => {
           >
             Mint
           </NavLink>
-          <NavLink
+          {/* <NavLink
             to="/dashboard"
             className={({ isActive }) =>
               `text-base font-medium transition-colors ${
@@ -175,7 +175,7 @@ export const Header = () => {
             onClick={toggleMobileMenu}
           >
             Dashboard
-          </NavLink>
+          </NavLink> */}
         </div>
       </div>
     </header>

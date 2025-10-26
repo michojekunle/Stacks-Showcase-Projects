@@ -162,6 +162,9 @@ const ProposalCard = ({ proposalId }: { proposalId: number }) => {
   const forPercentage =
     totalVotes > 0 ? (votes.votesFor / totalVotes) * 100 : 0;
 
+  console.log("Votessssssssss", votes)
+  console.log("IsActiveeeeeee", isActive)
+
   // Extract title and description from proposal data
   const title = proposal.value?.title?.value || `Proposal #${proposalId}`;
   const description =

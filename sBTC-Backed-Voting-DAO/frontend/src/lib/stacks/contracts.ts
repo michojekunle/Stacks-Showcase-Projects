@@ -5,7 +5,7 @@ import {
   cvToJSON
 } from '@stacks/transactions';
 import type { ClarityValue } from '@stacks/transactions';
-import { CONTRACT_CONFIG } from './config';
+import { CONTRACT_CONFIG, formatTokenAmount } from './config';
 import { STACKS_MAINNET, type StacksNetwork } from '@stacks/network';
 
 // Helper to check if network is mainnet
@@ -220,7 +220,7 @@ export const getProposal = async (
       network,
       senderAddress,
     });
-    return cvToJSON(result);
+    return cvToJSON(result)?.value?.value;
   } catch (error) {
     console.error('Error fetching proposal:', error);
     return null;
@@ -265,12 +265,15 @@ export const getProposalVotes = async (
       senderAddress,
     });
     const json = cvToJSON(result);
-    const votesFor = json.value?.['votes-for']?.value || 0;
-    const votesAgainst = json.value?.['votes-against']?.value || 0;
+    console.log("PROPOSAL VOTES RESULT", json)
+    
+    const votesFor = json?.value?.value?.['votes-for']?.value || 0;
+    const votesAgainst = json?.value?.value?.['votes-against']?.value || 0;
+    const total = json?.value?.value?.total?.value || 0;
     return {
-      votesFor: Number(votesFor),
-      votesAgainst: Number(votesAgainst),
-      total: Number(votesFor) + Number(votesAgainst)
+      votesFor: Number(formatTokenAmount(votesFor)),
+      votesAgainst: Number(formatTokenAmount(votesAgainst)),
+      total: Number(formatTokenAmount(total))
     };
   } catch (error) {
     console.error('Error fetching proposal votes:', error);
@@ -320,7 +323,8 @@ export const isProposalActive = async (
       senderAddress,
     });
     const json = cvToJSON(result);
-    return json.value === true;
+    console.log("SOMEEE JSON VALUE", json);
+    return json?.value?.value === true;
   } catch (error) {
     console.error('Error checking proposal status:', error);
     return false;
