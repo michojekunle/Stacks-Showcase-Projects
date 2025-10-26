@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { WalletConnectButton } from "./WalletConnectButton";
+import { WalletConnectControls } from "./WalletConnectButton";
 import { ModeToggle } from "./ModeToggle";
 
 export const Header = () => {
@@ -81,7 +81,7 @@ export const Header = () => {
 
         <div className="flex items-center gap-4">
           <ModeToggle />
-          <WalletConnectButton />
+          <WalletConnectControls />
           {/* Hamburger Button for Mobile */}
           <button
             className="md:hidden text-foreground focus:outline-none"
