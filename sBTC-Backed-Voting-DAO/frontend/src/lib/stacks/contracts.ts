@@ -1,12 +1,8 @@
-import { openContractCall } from '@stacks/connect';
-import {
-  Cl,
-  fetchCallReadOnlyFunction,
-  cvToJSON
-} from '@stacks/transactions';
-import type { ClarityValue } from '@stacks/transactions';
-import { CONTRACT_CONFIG, formatTokenAmount } from './config';
-import { STACKS_MAINNET, type StacksNetwork } from '@stacks/network';
+import { request } from "@stacks/connect";
+import { Cl, fetchCallReadOnlyFunction, cvToJSON } from "@stacks/transactions";
+import type { ClarityValue } from "@stacks/transactions";
+import { CONTRACT_CONFIG, formatTokenAmount } from "./config";
+import { STACKS_MAINNET, type StacksNetwork } from "@stacks/network";
 
 // Helper to check if network is mainnet
 export const isMainnetNetwork = (network: StacksNetwork): boolean => {
@@ -15,54 +11,49 @@ export const isMainnetNetwork = (network: StacksNetwork): boolean => {
 
 // Helper to parse contract ID
 const parseContractId = (contractId: string) => {
-  const [address, name] = contractId.split('.');
+  const [address, name] = contractId.split(".");
   return { address, name };
 };
 
-// ============= VOTE TOKEN FUNCTIONS =============
+// Helper to convert network to string format
+const networkToString = (network: StacksNetwork): "mainnet" | "testnet" => {
+  return isMainnetNetwork(network) ? "mainnet" : "testnet";
+};
+
 
 export const mintVoteTokens = async (
   amount: number,
   recipient: string,
   network: StacksNetwork,
   _senderAddress: string
-) => {
+): Promise<{ txid: string }> => {
   const { address, name } = parseContractId(CONTRACT_CONFIG.VOTE_TOKEN);
-  const txOptions = {
-    contractAddress: address,
-    contractName: name,
-    functionName: 'mint',
-    functionArgs: [
-      Cl.uint(amount),
-      Cl.standardPrincipal(recipient)
-    ],
-    network,
-    appDetails: { name: 'sBTC DAO', icon: 'https://placehold.co/32' },
-    onFinish: () => {},
-    onCancel: () => {},
-  };
-  const response = await openContractCall(txOptions);
-  return response;
+
+  const response = await request("stx_callContract", {
+    contract: `${address}.${name}`,
+    functionName: "mint",
+    functionArgs: [Cl.uint(amount), Cl.standardPrincipal(recipient)],
+    network: networkToString(network),
+  });
+
+  return { txid: response.txid || "" };
 };
 
 export const burnVoteTokens = async (
   amount: number,
   network: StacksNetwork,
   _senderAddress: string
-) => {
+): Promise<{ txid: string }> => {
   const { address, name } = parseContractId(CONTRACT_CONFIG.VOTE_TOKEN);
-  const txOptions = {
-    contractAddress: address,
-    contractName: name,
-    functionName: 'burn',
+
+  const response = await request("stx_callContract", {
+    contract: `${address}.${name}`,
+    functionName: "burn",
     functionArgs: [Cl.uint(amount)],
-    network,
-    appDetails: { name: 'sBTC DAO', icon: 'https://placehold.co/32' },
-    onFinish: () => {},
-    onCancel: () => {},
-  };
-  const response = await openContractCall(txOptions);
-  return response;
+    network: networkToString(network),
+  });
+
+  return { txid: response.txid || "" };
 };
 
 export const transferVoteTokens = async (
@@ -71,25 +62,22 @@ export const transferVoteTokens = async (
   recipient: string,
   network: StacksNetwork,
   _senderAddress: string
-) => {
+): Promise<{ txid: string }> => {
   const { address, name } = parseContractId(CONTRACT_CONFIG.VOTE_TOKEN);
-  const txOptions = {
-    contractAddress: address,
-    contractName: name,
-    functionName: 'transfer',
+
+  const response = await request("stx_callContract", {
+    contract: `${address}.${name}`,
+    functionName: "transfer",
     functionArgs: [
       Cl.uint(amount),
       Cl.standardPrincipal(sender),
       Cl.standardPrincipal(recipient),
-      Cl.none()
+      Cl.none(),
     ],
-    network,
-    appDetails: { name: 'sBTC DAO', icon: 'https://placehold.co/32' },
-    onFinish: () => {},
-    onCancel: () => {},
-  };
-  const response = await openContractCall(txOptions);
-  return response;
+    network: networkToString(network),
+  });
+
+  return { txid: response.txid || "" };
 };
 
 export const getVoteBalance = async (
@@ -97,11 +85,13 @@ export const getVoteBalance = async (
   network: StacksNetwork
 ): Promise<number> => {
   try {
-    const { address: contractAddress, name: contractName } = parseContractId(CONTRACT_CONFIG.VOTE_TOKEN);
+    const { address: contractAddress, name: contractName } = parseContractId(
+      CONTRACT_CONFIG.VOTE_TOKEN
+    );
     const result: ClarityValue = await fetchCallReadOnlyFunction({
       contractAddress,
       contractName,
-      functionName: 'get-balance',
+      functionName: "get-balance",
       functionArgs: [Cl.standardPrincipal(address)],
       network,
       senderAddress: address,
@@ -109,26 +99,30 @@ export const getVoteBalance = async (
     const json = cvToJSON(result);
     return json.value ? Number(json?.value?.value) : 0;
   } catch (error) {
-    console.error('Error fetching balance:', error);
+    console.error("Error fetching balance:", error);
     return 0;
   }
 };
 
-export const getTotalSupply = async (network: StacksNetwork): Promise<number> => {
+export const getTotalSupply = async (
+  network: StacksNetwork
+): Promise<number> => {
   try {
-    const { address: contractAddress, name: contractName } = parseContractId(CONTRACT_CONFIG.VOTE_TOKEN);
+    const { address: contractAddress, name: contractName } = parseContractId(
+      CONTRACT_CONFIG.VOTE_TOKEN
+    );
     const result: ClarityValue = await fetchCallReadOnlyFunction({
       contractAddress,
       contractName,
-      functionName: 'get-total-supply',
+      functionName: "get-total-supply",
       functionArgs: [],
       network,
       senderAddress: contractAddress,
     });
     const json = cvToJSON(result);
-    return json.value ? Number(json.value) : 0;
+    return json.value ? Number(json?.value?.value) : 0;
   } catch (error) {
-    console.error('Error fetching total supply:', error);
+    console.error("Error fetching total supply:", error);
     return 0;
   }
 };
@@ -140,23 +134,17 @@ export const createProposal = async (
   description: string,
   network: StacksNetwork,
   _senderAddress: string
-) => {
+): Promise<{ txid: string }> => {
   const { address, name } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
-  const txOptions = {
-    contractAddress: address,
-    contractName: name,
-    functionName: 'create-proposal',
-    functionArgs: [
-      Cl.stringUtf8(title),
-      Cl.stringUtf8(description)
-    ],
-    network,
-    appDetails: { name: 'sBTC DAO', icon: 'https://placehold.co/32' },
-    onFinish: () => {},
-    onCancel: () => {},
-  };
-  const response = await openContractCall(txOptions);
-  return response;
+
+  const response = await request("stx_callContract", {
+    contract: `${address}.${name}`,
+    functionName: "create-proposal",
+    functionArgs: [Cl.stringUtf8(title), Cl.stringUtf8(description)],
+    network: networkToString(network),
+  });
+
+  return { txid: response.txid || "" };
 };
 
 export const castVote = async (
@@ -165,44 +153,34 @@ export const castVote = async (
   amount: number,
   network: StacksNetwork,
   _senderAddress: string
-) => {
+): Promise<{ txid: string }> => {
   const { address, name } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
-  const txOptions = {
-    contractAddress: address,
-    contractName: name,
-    functionName: 'cast-vote',
-    functionArgs: [
-      Cl.uint(proposalId),
-      Cl.bool(voteFor),
-      Cl.uint(amount)
-    ],
-    network,
-    appDetails: { name: 'sBTC DAO', icon: 'https://placehold.co/32' },
-    onFinish: () => {},
-    onCancel: () => {},
-  };
-  const response = await openContractCall(txOptions);
-  return response;
+
+  const response = await request("stx_callContract", {
+    contract: `${address}.${name}`,
+    functionName: "cast-vote",
+    functionArgs: [Cl.uint(proposalId), Cl.bool(voteFor), Cl.uint(amount)],
+    network: networkToString(network),
+  });
+
+  return { txid: response.txid || "" };
 };
 
 export const finalizeProposal = async (
   proposalId: number,
   network: StacksNetwork,
   _senderAddress: string
-) => {
+): Promise<{ txid: string }> => {
   const { address, name } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
-  const txOptions = {
-    contractAddress: address,
-    contractName: name,
-    functionName: 'finalize-proposal',
+
+  const response = await request("stx_callContract", {
+    contract: `${address}.${name}`,
+    functionName: "finalize-proposal",
     functionArgs: [Cl.uint(proposalId)],
-    network,
-    appDetails: { name: 'sBTC DAO', icon: 'https://placehold.co/32' },
-    onFinish: () => {},
-    onCancel: () => {},
-  };
-  const response = await openContractCall(txOptions);
-  return response;
+    network: networkToString(network),
+  });
+
+  return { txid: response.txid || "" };
 };
 
 export const getProposal = async (
@@ -211,18 +189,20 @@ export const getProposal = async (
   senderAddress: string
 ): Promise<any> => {
   try {
-    const { address: contractAddress, name: contractName } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
+    const { address: contractAddress, name: contractName } = parseContractId(
+      CONTRACT_CONFIG.GOVERNANCE
+    );
     const result: ClarityValue = await fetchCallReadOnlyFunction({
       contractAddress,
       contractName,
-      functionName: 'get-proposal',
+      functionName: "get-proposal",
       functionArgs: [Cl.uint(proposalId)],
       network,
       senderAddress,
     });
     return cvToJSON(result)?.value?.value;
   } catch (error) {
-    console.error('Error fetching proposal:', error);
+    console.error("Error fetching proposal:", error);
     return null;
   }
 };
@@ -232,11 +212,13 @@ export const getProposalCount = async (
   senderAddress: string
 ): Promise<number> => {
   try {
-    const { address: contractAddress, name: contractName } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
+    const { address: contractAddress, name: contractName } = parseContractId(
+      CONTRACT_CONFIG.GOVERNANCE
+    );
     const result: ClarityValue = await fetchCallReadOnlyFunction({
       contractAddress,
       contractName,
-      functionName: 'get-proposal-count',
+      functionName: "get-proposal-count",
       functionArgs: [],
       network,
       senderAddress,
@@ -244,7 +226,7 @@ export const getProposalCount = async (
     const json = cvToJSON(result);
     return json.value ? Number(json?.value?.value) : 0;
   } catch (error) {
-    console.error('Error fetching proposal count:', error);
+    console.error("Error fetching proposal count:", error);
     return 0;
   }
 };
@@ -255,28 +237,30 @@ export const getProposalVotes = async (
   senderAddress: string
 ) => {
   try {
-    const { address: contractAddress, name: contractName } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
+    const { address: contractAddress, name: contractName } = parseContractId(
+      CONTRACT_CONFIG.GOVERNANCE
+    );
     const result: ClarityValue = await fetchCallReadOnlyFunction({
       contractAddress,
       contractName,
-      functionName: 'get-proposal-votes',
+      functionName: "get-proposal-votes",
       functionArgs: [Cl.uint(proposalId)],
       network,
       senderAddress,
     });
     const json = cvToJSON(result);
-    console.log("PROPOSAL VOTES RESULT", json)
-    
-    const votesFor = json?.value?.value?.['votes-for']?.value || 0;
-    const votesAgainst = json?.value?.value?.['votes-against']?.value || 0;
+    console.log("PROPOSAL VOTES RESULT", json);
+
+    const votesFor = json?.value?.value?.["votes-for"]?.value || 0;
+    const votesAgainst = json?.value?.value?.["votes-against"]?.value || 0;
     const total = json?.value?.value?.total?.value || 0;
     return {
       votesFor: Number(formatTokenAmount(votesFor)),
       votesAgainst: Number(formatTokenAmount(votesAgainst)),
-      total: Number(formatTokenAmount(total))
+      total: Number(formatTokenAmount(total)),
     };
   } catch (error) {
-    console.error('Error fetching proposal votes:', error);
+    console.error("Error fetching proposal votes:", error);
     return { votesFor: 0, votesAgainst: 0, total: 0 };
   }
 };
@@ -287,22 +271,21 @@ export const hasVoted = async (
   network: StacksNetwork
 ): Promise<boolean> => {
   try {
-    const { address: contractAddress, name: contractName } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
+    const { address: contractAddress, name: contractName } = parseContractId(
+      CONTRACT_CONFIG.GOVERNANCE
+    );
     const result: ClarityValue = await fetchCallReadOnlyFunction({
       contractAddress,
       contractName,
-      functionName: 'has-voted',
-      functionArgs: [
-        Cl.uint(proposalId),
-        Cl.standardPrincipal(voterAddress)
-      ],
+      functionName: "has-voted",
+      functionArgs: [Cl.uint(proposalId), Cl.standardPrincipal(voterAddress)],
       network,
       senderAddress: voterAddress,
     });
     const json = cvToJSON(result);
-    return json.value === true;
+    return json?.value?.value === true;
   } catch (error) {
-    console.error('Error checking vote status:', error);
+    console.error("Error checking vote status:", error);
     return false;
   }
 };
@@ -313,11 +296,13 @@ export const isProposalActive = async (
   senderAddress: string
 ): Promise<boolean> => {
   try {
-    const { address: contractAddress, name: contractName } = parseContractId(CONTRACT_CONFIG.GOVERNANCE);
+    const { address: contractAddress, name: contractName } = parseContractId(
+      CONTRACT_CONFIG.GOVERNANCE
+    );
     const result: ClarityValue = await fetchCallReadOnlyFunction({
       contractAddress,
       contractName,
-      functionName: 'is-proposal-active',
+      functionName: "is-proposal-active",
       functionArgs: [Cl.uint(proposalId)],
       network,
       senderAddress,
@@ -326,7 +311,7 @@ export const isProposalActive = async (
     console.log("SOMEEE JSON VALUE", json);
     return json?.value?.value === true;
   } catch (error) {
-    console.error('Error checking proposal status:', error);
+    console.error("Error checking proposal status:", error);
     return false;
   }
 };

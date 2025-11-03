@@ -205,10 +205,12 @@ const Vote = () => {
                 )}
 
                 {!isActive && (
-                  <div className="glass rounded-md p-4 mb-6 border border-muted-foreground/20">
-                    <p className="text-sm text-muted-foreground">
-                      This proposal is no longer active
-                    </p>
+                  <div className="px-6">
+                    <div className="rounded-md p-4 mb-6 bg-red-100 w-full border border-muted-foreground/20">
+                      <p className="text-sm text-red-500">
+                        This proposal is no longer active
+                      </p>
+                    </div>
                   </div>
                 )}
 
