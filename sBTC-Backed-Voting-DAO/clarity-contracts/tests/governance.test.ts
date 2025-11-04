@@ -35,7 +35,12 @@ describe("Governance Contract", () => {
       );
       expect(createResult.result).toBeOk(Cl.uint(1));
       // Check proposal data
-      const proposal = simnet.callReadOnlyFn("governance", "get-proposal", [Cl.uint(1)], deployer);
+      const proposal = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(proposal.result).toBeOk(
         Cl.some(
           Cl.tuple({
@@ -111,7 +116,12 @@ describe("Governance Contract", () => {
       );
       expect(voteResult.result).toBeOk(Cl.bool(true));
       // Check vote data
-      const vote = simnet.callReadOnlyFn("governance", "get-vote", [Cl.uint(1), Cl.principal(wallet2)], deployer);
+      const vote = simnet.callReadOnlyFn(
+        "governance",
+        "get-vote",
+        [Cl.uint(1), Cl.principal(wallet2)],
+        deployer
+      );
       expect(vote.result).toBeOk(
         Cl.some(
           Cl.tuple({
@@ -122,7 +132,12 @@ describe("Governance Contract", () => {
         )
       );
       // Check proposal votes
-      const proposal = simnet.callReadOnlyFn("governance", "get-proposal", [Cl.uint(1)], deployer);
+      const proposal = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(proposal.result).toBeOk(
         Cl.some(
           Cl.tuple({
@@ -173,7 +188,12 @@ describe("Governance Contract", () => {
         wallet1
       );
       mineBlocks(1010); // Move past end-block (startBlock + 1008 + extra)
-      simnet.callPublicFn("governance", "finalize-proposal", [Cl.uint(1)], deployer);
+      simnet.callPublicFn(
+        "governance",
+        "finalize-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       const voteResult = simnet.callPublicFn(
         "governance",
         "cast-vote",
@@ -206,7 +226,12 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(true), Cl.uint(1000)], wallet2);
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(true), Cl.uint(1000)],
+        wallet2
+      );
       const voteResult = simnet.callPublicFn(
         "governance",
         "cast-vote",
@@ -228,13 +253,33 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(true), Cl.uint(1000)], wallet2);
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(false), Cl.uint(500)], deployer);
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(true), Cl.uint(1000)],
+        wallet2
+      );
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(false), Cl.uint(500)],
+        deployer
+      );
       mineBlocks(1010); // Move past end-block
-      const finalizeResult = simnet.callPublicFn("governance", "finalize-proposal", [Cl.uint(1)], deployer);
+      const finalizeResult = simnet.callPublicFn(
+        "governance",
+        "finalize-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(finalizeResult.result).toBeOk(Cl.bool(true)); // Passed: 1000 > 500
       // Check proposal status
-      const proposal = simnet.callReadOnlyFn("governance", "get-proposal", [Cl.uint(1)], deployer);
+      const proposal = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(proposal.result).toBeOk(
         Cl.some(
           Cl.tuple({
@@ -274,12 +319,32 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(true), Cl.uint(500)], wallet2);
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(false), Cl.uint(1000)], deployer);
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(true), Cl.uint(500)],
+        wallet2
+      );
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(false), Cl.uint(1000)],
+        deployer
+      );
       mineBlocks(1010); // Move past end-block
-      const finalizeResult = simnet.callPublicFn("governance", "finalize-proposal", [Cl.uint(1)], deployer);
+      const finalizeResult = simnet.callPublicFn(
+        "governance",
+        "finalize-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(finalizeResult.result).toBeOk(Cl.bool(false)); // Rejected: 500 < 1000
-      const proposal = simnet.callReadOnlyFn("governance", "get-proposal", [Cl.uint(1)], deployer);
+      const proposal = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(proposal.result).toBeOk(
         Cl.some(
           Cl.tuple({
@@ -311,7 +376,12 @@ describe("Governance Contract", () => {
     });
 
     it("fails to finalize non-existent proposal", () => {
-      const finalizeResult = simnet.callPublicFn("governance", "finalize-proposal", [Cl.uint(1)], deployer);
+      const finalizeResult = simnet.callPublicFn(
+        "governance",
+        "finalize-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(finalizeResult.result).toBeErr(Cl.uint(201)); // err-proposal-not-found
     });
 
@@ -322,7 +392,12 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      const finalizeResult = simnet.callPublicFn("governance", "finalize-proposal", [Cl.uint(1)], deployer);
+      const finalizeResult = simnet.callPublicFn(
+        "governance",
+        "finalize-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(finalizeResult.result).toBeErr(Cl.uint(205)); // err-proposal-not-ended
     });
 
@@ -336,8 +411,18 @@ describe("Governance Contract", () => {
         wallet1
       );
       mineBlocks(1010); // Move past end-block
-      simnet.callPublicFn("governance", "finalize-proposal", [Cl.uint(1)], deployer);
-      const finalizeResult = simnet.callPublicFn("governance", "finalize-proposal", [Cl.uint(1)], deployer);
+      simnet.callPublicFn(
+        "governance",
+        "finalize-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
+      const finalizeResult = simnet.callPublicFn(
+        "governance",
+        "finalize-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(finalizeResult.result).toBeErr(Cl.uint(206)); // err-proposal-already-finalized
     });
   });
@@ -353,7 +438,12 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      const proposal = simnet.callReadOnlyFn("governance", "get-proposal", [Cl.uint(1)], deployer);
+      const proposal = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(proposal.result).toBeOk(
         Cl.some(
           Cl.tuple({
@@ -383,8 +473,18 @@ describe("Governance Contract", () => {
       );
       const votePreBlock = simnet.blockHeight;
       const voteBlock = votePreBlock + 1;
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(true), Cl.uint(1000)], wallet2);
-      const vote = simnet.callReadOnlyFn("governance", "get-vote", [Cl.uint(1), Cl.principal(wallet2)], deployer);
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(true), Cl.uint(1000)],
+        wallet2
+      );
+      const vote = simnet.callReadOnlyFn(
+        "governance",
+        "get-vote",
+        [Cl.uint(1), Cl.principal(wallet2)],
+        deployer
+      );
       expect(vote.result).toBeOk(
         Cl.some(
           Cl.tuple({
@@ -403,7 +503,12 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      const count = simnet.callReadOnlyFn("governance", "get-proposal-count", [], deployer);
+      const count = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal-count",
+        [],
+        deployer
+      );
       expect(count.result).toBeOk(Cl.uint(1));
     });
 
@@ -414,7 +519,12 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      const status = simnet.callReadOnlyFn("governance", "get-proposal-status", [Cl.uint(1)], deployer);
+      const status = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal-status",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(status.result).toBeOk(Cl.stringAscii("active"));
     });
 
@@ -425,8 +535,18 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(true), Cl.uint(1000)], wallet2);
-      const votes = simnet.callReadOnlyFn("governance", "get-proposal-votes", [Cl.uint(1)], deployer);
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(true), Cl.uint(1000)],
+        wallet2
+      );
+      const votes = simnet.callReadOnlyFn(
+        "governance",
+        "get-proposal-votes",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(votes.result).toBeOk(
         Cl.tuple({
           "votes-for": Cl.uint(1000),
@@ -443,10 +563,25 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(true), Cl.uint(1000)], wallet2);
-      const hasVoted = simnet.callReadOnlyFn("governance", "has-voted", [Cl.uint(1), Cl.principal(wallet2)], deployer);
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(true), Cl.uint(1000)],
+        wallet2
+      );
+      const hasVoted = simnet.callReadOnlyFn(
+        "governance",
+        "has-voted",
+        [Cl.uint(1), Cl.principal(wallet2)],
+        deployer
+      );
       expect(hasVoted.result).toBeOk(Cl.bool(true));
-      const hasNotVoted = simnet.callReadOnlyFn("governance", "has-voted", [Cl.uint(1), Cl.principal(deployer)], deployer);
+      const hasNotVoted = simnet.callReadOnlyFn(
+        "governance",
+        "has-voted",
+        [Cl.uint(1), Cl.principal(deployer)],
+        deployer
+      );
       expect(hasNotVoted.result).toBeOk(Cl.bool(false));
     });
 
@@ -459,10 +594,20 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      const isActive = simnet.callReadOnlyFn("governance", "is-proposal-active", [Cl.uint(1)], deployer);
+      const isActive = simnet.callReadOnlyFn(
+        "governance",
+        "is-proposal-active",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(isActive.result).toBeOk(Cl.bool(true));
       mineBlocks(1010); // Move past end-block
-      const isNotActive = simnet.callReadOnlyFn("governance", "is-proposal-active", [Cl.uint(1)], deployer);
+      const isNotActive = simnet.callReadOnlyFn(
+        "governance",
+        "is-proposal-active",
+        [Cl.uint(1)],
+        deployer
+      );
       expect(isNotActive.result).toBeOk(Cl.bool(false));
     });
   });
@@ -471,20 +616,38 @@ describe("Governance Contract", () => {
   describe("Admin Functions", () => {
     it("sets vote token contract successfully", () => {
       const voteTokenContract = Cl.principal(deployer + ".vote-token");
-      const result = simnet.callPublicFn("governance", "set-vote-token-contract", [voteTokenContract], deployer);
+      const result = simnet.callPublicFn(
+        "governance",
+        "set-vote-token-contract",
+        [voteTokenContract],
+        deployer
+      );
       expect(result.result).toBeOk(Cl.bool(true));
-      const contractVar = simnet.getDataVar("governance", "vote-token-contract");
+      const contractVar = simnet.getDataVar(
+        "governance",
+        "vote-token-contract"
+      );
       expect(contractVar).toEqual(voteTokenContract);
     });
 
     it("fails to set vote token contract by non-owner", () => {
       const voteTokenContract = Cl.principal(deployer + ".vote-token");
-      const result = simnet.callPublicFn("governance", "set-vote-token-contract", [voteTokenContract], wallet1);
+      const result = simnet.callPublicFn(
+        "governance",
+        "set-vote-token-contract",
+        [voteTokenContract],
+        wallet1
+      );
       expect(result.result).toBeErr(Cl.uint(200)); // err-owner-only
     });
 
     it("sets vote token contract with any valid principal", () => {
-      const result = simnet.callPublicFn("governance", "set-vote-token-contract", [Cl.principal("ST000000000000000000002AMW42H")], deployer);
+      const result = simnet.callPublicFn(
+        "governance",
+        "set-vote-token-contract",
+        [Cl.principal("ST000000000000000000002AMW42H")],
+        deployer
+      );
       expect(result.result).toBeOk(Cl.bool(true)); // Contract accepts any principal
     });
   });
@@ -500,7 +663,11 @@ describe("Governance Contract", () => {
         [Cl.stringUtf8("Test Proposal"), Cl.stringUtf8("Description")],
         wallet1
       );
-      const proposal = simnet.getMapEntry("governance", "proposals", Cl.uint(1));
+      const proposal = simnet.getMapEntry(
+        "governance",
+        "proposals",
+        Cl.uint(1)
+      );
       expect(proposal).toBeSome(
         Cl.tuple({
           creator: Cl.principal(wallet1),
@@ -528,8 +695,17 @@ describe("Governance Contract", () => {
       );
       const votePreBlock = simnet.blockHeight;
       const voteBlock = votePreBlock + 1;
-      simnet.callPublicFn("governance", "cast-vote", [Cl.uint(1), Cl.bool(true), Cl.uint(1000)], wallet2);
-      const vote = simnet.getMapEntry("governance", "votes", Cl.tuple({ "proposal-id": Cl.uint(1), voter: Cl.principal(wallet2) }));
+      simnet.callPublicFn(
+        "governance",
+        "cast-vote",
+        [Cl.uint(1), Cl.bool(true), Cl.uint(1000)],
+        wallet2
+      );
+      const vote = simnet.getMapEntry(
+        "governance",
+        "votes",
+        Cl.tuple({ "proposal-id": Cl.uint(1), voter: Cl.principal(wallet2) })
+      );
       expect(vote).toBeSome(
         Cl.tuple({
           vote: Cl.bool(true),
@@ -540,7 +716,12 @@ describe("Governance Contract", () => {
     });
 
     it("reads user-voting-power map correctly", () => {
-      const votingPower = simnet.callReadOnlyFn("governance", "get-vote", [Cl.uint(1), Cl.principal(wallet1)], deployer);
+      const votingPower = simnet.callReadOnlyFn(
+        "governance",
+        "get-vote",
+        [Cl.uint(1), Cl.principal(wallet1)],
+        deployer
+      );
       expect(votingPower.result).toBeOk(Cl.none()); // No voting power set
     });
 
@@ -556,7 +737,10 @@ describe("Governance Contract", () => {
     });
 
     it("reads vote-token-contract variable correctly", () => {
-      const voteTokenContract = simnet.getDataVar("governance", "vote-token-contract");
+      const voteTokenContract = simnet.getDataVar(
+        "governance",
+        "vote-token-contract"
+      );
       expect(voteTokenContract).toEqual(Cl.principal(deployer));
     });
   });

@@ -1,10 +1,28 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { connect, disconnect, isConnected, getLocalStorage } from "@stacks/connect";
-import { STACKS_MAINNET, STACKS_TESTNET, type StacksNetwork } from "@stacks/network";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import {
+  connect,
+  disconnect,
+  isConnected,
+  getLocalStorage,
+} from "@stacks/connect";
+import {
+  STACKS_MAINNET,
+  STACKS_TESTNET,
+  type StacksNetwork,
+} from "@stacks/network";
 
 // Network configuration from environment
-const networkMode = (import.meta.env.VITE_APP_NETWORK || "testnet") as "mainnet" | "testnet";
-const network: StacksNetwork = networkMode === "mainnet" ? STACKS_MAINNET : STACKS_TESTNET;
+const networkMode = (import.meta.env.VITE_APP_NETWORK || "testnet") as
+  | "mainnet"
+  | "testnet";
+const network: StacksNetwork =
+  networkMode === "mainnet" ? STACKS_MAINNET : STACKS_TESTNET;
 
 interface WalletContextType {
   address: string | null;
@@ -44,12 +62,15 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
           // Access addresses array directly, then find STX address
           const addresses = data?.addresses;
           let stxAddress: string | undefined;
-          
-          if (Array.isArray(addresses)) {
-            const stxEntry = addresses.find(addr => addr.symbol === 'STX');
+
+          if (Array.isArray(addresses?.stx)) {
+            const stxEntry = addresses?.stx?.find(
+              // @ts-ignore
+              (addr) => addr.purpose === "stacks" || addr.symbol === "STX"
+            );
             stxAddress = stxEntry?.address;
           }
-          
+
           if (stxAddress) {
             setAddress(stxAddress);
             setIsWalletConnected(true);
@@ -57,7 +78,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
           }
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to initialize wallet";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to initialize wallet";
         setError(errorMessage);
         console.error("Wallet initialization error:", err);
       }
@@ -70,21 +92,25 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const connectWallet = useCallback(async () => {
     try {
       setError(null);
-      
-      const response = await connect({ enableLocalStorage: true });
+
+      const response = await connect({
+        enableLocalStorage: true,
+        forceWalletSelect: true,
+      });
 
       // Access addresses array and find STX address
       const addresses = response?.addresses;
 
-      console.log(addresses);
       let stxAddress: string | undefined;
-      
+
       if (Array.isArray(addresses)) {
-        // @ts-ignore
-        const stxEntry = addresses.find(addr => addr.purpose === 'stacks');
+        const stxEntry = addresses.find(
+          // @ts-ignore
+          (addr) => addr.purpose === "stacks" || addr.symbol === "STX"
+        );
         stxAddress = stxEntry?.address;
       }
-      
+
       if (stxAddress) {
         setAddress(stxAddress);
         setIsWalletConnected(true);
@@ -92,7 +118,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
         throw new Error("No STX address returned from wallet");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Wallet connection failed";
+      const errorMessage =
+        err instanceof Error ? err.message : "Wallet connection failed";
       setError(errorMessage);
       setIsWalletConnected(false);
       setAddress(null);
@@ -109,7 +136,8 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       setIsWalletConnected(false);
       setError(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Wallet disconnection failed";
+      const errorMessage =
+        err instanceof Error ? err.message : "Wallet disconnection failed";
       setError(errorMessage);
       console.error("Wallet disconnection error:", err);
     }

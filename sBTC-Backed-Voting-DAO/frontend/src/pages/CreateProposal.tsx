@@ -59,17 +59,10 @@ const CreateProposal = () => {
     }
 
     try {
-      await createProposal({
+      createProposal({
         title: formData.title,
         description: formData.description,
       });
-
-      toast({
-        title: "Proposal Created",
-        description: "Your proposal has been submitted to the DAO.",
-      });
-
-      setTimeout(() => navigate("/proposals"), 1500);
     } catch (error) {
       console.error("Create proposal error:", error);
       // Error toast is handled by the hook
