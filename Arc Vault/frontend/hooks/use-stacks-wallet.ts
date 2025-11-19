@@ -1,133 +1,179 @@
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from "react";
 
 export interface StacksAccount {
-  address: string
-  balance: string
-  stxBalance: string
-}
-
-interface WalletProvider {
-  name: 'leather' | 'xverse'
-  isInstalled: boolean
+  address: string;
+  balance: string;
+  stxBalance: string;
 }
 
 export function useStacksWallet() {
-  const [account, setAccount] = useState<StacksAccount | null>(null)
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [providers, setProviders] = useState<WalletProvider[]>([])
+  const [account, setAccount] = useState<StacksAccount | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasLeather, setHasLeather] = useState(false);
+  const [hasXverse, setHasXverse] = useState(false);
 
   // Check for available wallet providers
   useEffect(() => {
     const checkProviders = () => {
-      const available: WalletProvider[] = []
-      
-      // Check for Leather wallet
-      if ((window as any).LeatherProvider) {
-        available.push({ name: 'leather', isInstalled: true })
-      }
-      
+      // Check for Leather wallet (window.LeatherProvider or window.StacksProvider)
+      setHasLeather(
+        !!(window as any).LeatherProvider || !!(window as any).StacksProvider
+      );
+
       // Check for Xverse wallet
-      if ((window as any).XverseProviders) {
-        available.push({ name: 'xverse', isInstalled: true })
+      setHasXverse(!!(window as any).XverseProviders);
+    };
+
+    const reestablishConnection = async () => {
+      // Try to reestablish connection if wallet is already connected
+      try {
+        // Check for btc provider (Xverse)
+        if (typeof window !== "undefined" && (window as any).btc) {
+          const response = await (window as any).btc.request(
+            "getAddresses",
+            {}
+          );
+          const stxAddress = response?.result?.addresses?.find(
+            (addr: any) => addr.symbol === "STX"
+          );
+          if (stxAddress) {
+            const balanceResponse = await fetch(
+              `https://api.testnet.hiro.so/extended/v1/address/${stxAddress.address}/balances`
+            );
+            const balanceData = await balanceResponse.json();
+            console.log(balanceData, "balanceData");
+            const stxBalance = balanceData.stx?.balance || "0";
+            setAccount({
+              address: stxAddress.address,
+              balance: stxBalance,
+              stxBalance: (parseInt(stxBalance) / 1000000).toFixed(2),
+            });
+          }
+        } else {
+          // Fallback: Try legacy Leather connection
+          const provider =
+            (window as any).LeatherProvider || (window as any).StacksProvider;
+          if (provider && provider.request) {
+            const response = await provider.request("getAddresses", {});
+            const stxAddress = response?.result?.addresses?.[0]?.address;
+            if (stxAddress) {
+              const balanceResponse = await fetch(
+                `https://api.mainnet.hiro.so/extended/v1/address/${stxAddress}/balances`
+              );
+              const balanceData = await balanceResponse.json();
+              console.log(balanceData, "balanceData")
+              const stxBalance = balanceData.stx?.balance || "0";
+              setAccount({
+                address: stxAddress,
+                balance: stxBalance,
+                stxBalance: (parseInt(stxBalance) / 1000000).toFixed(2),
+              });
+            }
+          }
+        }
+      } catch (err) {
+        // Silent fail, do not set error on reestablish
+        console.error(" Wallet reestablish error:", err);
       }
-      
-      setProviders(available)
-    }
+    };
 
-    checkProviders()
-    window.addEventListener('load', checkProviders)
-    return () => window.removeEventListener('load', checkProviders)
-  }, [])
+    checkProviders();
+    reestablishConnection();
 
-  const connectLeather = useCallback(async () => {
-    setIsConnecting(true)
-    setError(null)
+    // Delay check to ensure wallets have injected their providers
+    setTimeout(checkProviders, 500);
+    window.addEventListener("load", checkProviders);
+    return () => {
+      window.removeEventListener("load", checkProviders);
+    };
+  }, []);
+
+  const connect = useCallback(async () => {
+    setIsConnecting(true);
+    setError(null);
 
     try {
-      const provider = (window as any).LeatherProvider
-      if (!provider) {
-        throw new Error('Leather wallet not installed')
-      }
+      // Use @stacks/connect v8 request method
+      // This works with both Leather and Xverse through the standard interface
+      if (typeof window !== "undefined" && (window as any).btc) {
+        const response = await (window as any).btc.request("getAddresses", {});
+        console.log(response, "Response hereee");
 
-      // Request wallet connection
-      const response = await provider.requestPermissions({
-        permissions: ['store_write', 'store_read'],
-      })
+        if (response && response.result && response.result.addresses) {
+          console.log(response, "Response hereee");
+          const stxAddress = response.result.addresses.find(
+            (addr: any) => addr.symbol === "STX"
+          );
 
-      if (response.permissions.includes('store_read')) {
-        // Get user account info
-        const accountInfo = await provider.getAddresses()
-        const stxAddress = accountInfo.addresses[0]?.address
+          if (stxAddress) {
+            // Fetch actual STX balance from API
+            const balanceResponse = await fetch(
+              `https://api.mainnet.hiro.so/extended/v1/address/${stxAddress.address}/balances`
+            );
+            const balanceData = await balanceResponse.json();
+            console.log(balanceData, "balanceData");
+            const stxBalance = balanceData.stx?.balance || "0";
 
-        if (stxAddress) {
-          // Fetch STX balance (mock for now - replace with actual API call)
-          const mockBalance = '1000000000' // 1000 STX in microSTX
-          
-          setAccount({
-            address: stxAddress,
-            balance: mockBalance,
-            stxBalance: (parseInt(mockBalance) / 1000000).toString(),
-          })
+            setAccount({
+              address: stxAddress.address,
+              balance: stxBalance,
+              stxBalance: (parseInt(stxBalance) / 1000000).toFixed(2),
+            });
+          }
+        }
+      } else {
+        // Fallback: Try legacy Leather connection
+        const provider =
+          (window as any).LeatherProvider || (window as any).StacksProvider;
+        if (provider && provider.request) {
+          const response = await provider.request("getAddresses", {});
+          console.log(response, "Response hereee");
+          const stxAddress = response?.result?.addresses?.[0]?.address;
+
+          if (stxAddress) {
+            const balanceResponse = await fetch(
+              `https://api.mainnet.hiro.so/extended/v1/address/${stxAddress}/balances`
+            );
+            const balanceData = await balanceResponse.json();
+            console.log(balanceData, "balanceData");
+            const stxBalance = balanceData.stx?.balance || "0";
+
+            setAccount({
+              address: stxAddress,
+              balance: stxBalance,
+              stxBalance: (parseInt(stxBalance) / 1000000).toFixed(2),
+            });
+          }
+        } else {
+          throw new Error(
+            "No Stacks wallet detected. Please install Leather or Xverse."
+          );
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to connect Leather')
+      setError(err instanceof Error ? err.message : "Failed to connect wallet");
+      console.error(" Wallet connection error:", err);
     } finally {
-      setIsConnecting(false)
+      setIsConnecting(false);
     }
-  }, [])
-
-  const connectXverse = useCallback(async () => {
-    setIsConnecting(true)
-    setError(null)
-
-    try {
-      const xverse = (window as any).XverseProviders?.XverseProvider
-
-      if (!xverse) {
-        throw new Error('Xverse wallet not installed')
-      }
-
-      // Request STX account
-      const response = await xverse.request('getAccounts', {
-        types: ['stacks'],
-      })
-
-      const stxAccount = response.stacks[0]
-
-      if (stxAccount?.address) {
-        // Mock balance - replace with actual API call
-        const mockBalance = '1000000000'
-        
-        setAccount({
-          address: stxAccount.address,
-          balance: mockBalance,
-          stxBalance: (parseInt(mockBalance) / 1000000).toString(),
-        })
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to connect Xverse')
-    } finally {
-      setIsConnecting(false)
-    }
-  }, [])
+  }, []);
 
   const disconnect = useCallback(() => {
-    setAccount(null)
-    setError(null)
-  }, [])
+    setAccount(null);
+    setError(null);
+  }, []);
 
   return {
     account,
     isConnecting,
     error,
-    providers,
-    connectLeather,
-    connectXverse,
+    hasLeather,
+    hasXverse,
+    connect,
     disconnect,
     isConnected: !!account,
-  }
+  };
 }

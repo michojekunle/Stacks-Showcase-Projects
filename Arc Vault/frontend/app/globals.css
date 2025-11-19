@@ -4,64 +4,65 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Bitcoin-native color scheme: Deep black + Vibrant orange */
-  --background: oklch(0.08 0 0);
+  /* Simplified color palette - dark with just Bitcoin orange accent */
+  --background: oklch(0.08 0.01 270);
   --foreground: oklch(0.95 0 0);
-  --card: oklch(0.12 0 0);
+  --card: oklch(0.12 0.01 270);
   --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.12 0 0);
+  --popover: oklch(0.10 0.01 270);
   --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.575 0.18 30.88);
-  --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.15 0 0);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.575 0.18 30.88);
-  --accent-foreground: oklch(0.08 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.2 0 0);
-  --input: oklch(0.15 0 0);
-  --ring: oklch(0.575 0.18 30.88);
-  --chart-1: oklch(0.575 0.18 30.88);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.4 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
+  --primary: oklch(0.68 0.21 35);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.18 0.01 270);
+  --secondary-foreground: oklch(0.90 0 0);
+  --muted: oklch(0.25 0.01 270);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.68 0.21 35);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.58 0.24 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.22 0.01 270);
+  --input: oklch(0.15 0.01 270);
+  --ring: oklch(0.68 0.21 35);
+  --chart-1: oklch(0.68 0.21 35);
+  --chart-2: oklch(0.55 0.18 200);
+  --chart-3: oklch(0.62 0.16 280);
+  --chart-4: oklch(0.70 0.15 150);
+  --chart-5: oklch(0.60 0.17 60);
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: oklch(0.08 0 0);
+  --background: oklch(0.08 0.01 270);
   --foreground: oklch(0.95 0 0);
-  --card: oklch(0.12 0 0);
+  --card: oklch(0.12 0.01 270);
   --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.12 0 0);
+  --popover: oklch(0.10 0.01 270);
   --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.575 0.18 30.88);
-  --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.15 0 0);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.575 0.18 30.88);
-  --accent-foreground: oklch(0.08 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.2 0 0);
-  --input: oklch(0.15 0 0);
-  --ring: oklch(0.575 0.18 30.88);
-  --chart-1: oklch(0.575 0.18 30.88);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.4 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --primary: oklch(0.68 0.21 35);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.18 0.01 270);
+  --secondary-foreground: oklch(0.90 0 0);
+  --muted: oklch(0.25 0.01 270);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.68 0.21 35);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.58 0.24 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.22 0.01 270);
+  --input: oklch(0.15 0.01 270);
+  --ring: oklch(0.68 0.21 35);
+  --chart-1: oklch(0.68 0.21 35);
+  --chart-2: oklch(0.55 0.18 200);
+  --chart-3: oklch(0.62 0.16 280);
+  --chart-4: oklch(0.70 0.15 150);
+  --chart-5: oklch(0.60 0.17 60);
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  /* Switched to Inter font family for better readability */
+  --font-sans: 'Inter', 'Inter Fallback', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -96,26 +97,43 @@
     @apply bg-background text-foreground;
   }
   
-  /* Glassmorphism effect */
+  /* Enhanced glassmorphism */
   .glass {
-    @apply bg-card/40 backdrop-blur-xl border border-white/10;
+    @apply bg-card/70 backdrop-blur-xl border border-border/60;
   }
   
-  /* Bitcoin pattern overlay */
+  /* Subtle Bitcoin pattern */
   .bitcoin-pattern {
     background-image: 
-      radial-gradient(circle at 20% 50%, rgba(247, 147, 26, 0.03) 1px, transparent 1px),
-      radial-gradient(circle at 80% 80%, rgba(247, 147, 26, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
+      radial-gradient(circle at 20% 50%, rgba(247, 147, 26, 0.04) 2px, transparent 2px),
+      radial-gradient(circle at 80% 80%, rgba(247, 147, 26, 0.04) 2px, transparent 2px);
+    background-size: 80px 80px, 100px 100px;
   }
   
-  /* Glow effect for accents */
+  /* Subtle glow effects */
   .glow-orange {
-    box-shadow: 0 0 20px rgba(247, 147, 26, 0.3);
+    box-shadow: 0 0 20px rgba(247, 147, 26, 0.3), 0 0 40px rgba(247, 147, 26, 0.1);
   }
   
   /* Number animation */
   .number-ticker {
     font-variant-numeric: tabular-nums;
+  }
+  
+  /* Smooth hover lift */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Subtle gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, oklch(0.68 0.21 35), oklch(0.78 0.18 45));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

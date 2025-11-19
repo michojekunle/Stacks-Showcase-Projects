@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ArrowUpRight, ArrowDownLeft, Zap } from 'lucide-react'
+import { ArrowUpRight, ArrowDownLeft, Zap, TrendingUp } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useStacksWallet } from '@/hooks/use-stacks-wallet'
 import { depositSTX, withdrawVSTX } from '@/lib/stacks-contracts'
@@ -41,8 +41,6 @@ export function Dashboard() {
     try {
       const amountInMicroSTX = (parseFloat(inputValue) * 1000000).toString()
       const result = await depositSTX(account, amountInMicroSTX, account.address)
-      
-      console.log(`[v0] Deposit successful: ${result.txId}`)
       
       setTimeout(() => {
         setIsLoading(false)
@@ -84,8 +82,6 @@ export function Dashboard() {
       const amountInMicroVSTX = (parseFloat(inputValue) * 1000000).toString()
       const result = await withdrawVSTX(account, amountInMicroVSTX, account.address)
       
-      console.log(`[v0] Withdrawal successful: ${result.txId}`)
-      
       setTimeout(() => {
         setIsLoading(false)
         setInputValue('')
@@ -111,27 +107,29 @@ export function Dashboard() {
     : '0'
 
   return (
-    <Card className="glass border-primary/20 p-8">
+    <Card className="glass border-primary/30 p-8 hover-lift">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Balance Info */}
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground mb-6">YOUR VAULT BALANCE</h2>
+          <h2 className="text-sm font-semibold text-muted-foreground mb-6 uppercase tracking-wider">Your Vault Balance</h2>
           <div className="space-y-6">
-            <div>
+            <div className="glass p-6 rounded-xl border-primary/20 hover-lift">
               <p className="text-sm text-muted-foreground mb-2">vSTX Balance</p>
-              <p className="text-4xl font-bold">{vstxBalance.toLocaleString()}</p>
+              <p className="text-4xl font-bold text-foreground">{vstxBalance.toLocaleString()}</p>
             </div>
-            <div>
+            <div className="glass p-6 rounded-xl border-border hover-lift">
               <p className="text-sm text-muted-foreground mb-2">Equivalent STX Value</p>
-              <p className="text-3xl font-bold text-primary">
-                {stxEquivalent.toLocaleString('en-US', { maximumFractionDigits: 2 })} STX
-              </p>
+              <div className="flex items-baseline gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                <p className="text-3xl font-bold text-foreground">
+                  {stxEquivalent.toLocaleString('en-US', { maximumFractionDigits: 2 })} STX
+                </p>
+              </div>
             </div>
-            <div className="pt-4 border-t border-border/50">
+            <div className="glass p-6 rounded-xl border-primary/30 glow-orange hover-lift">
               <p className="text-sm text-muted-foreground mb-2">Unrealized Yield</p>
-              <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-primary glow-orange" />
-                <p className="text-2xl font-bold text-primary">
+              <div className="flex items-baseline gap-2">
+                <Zap className="w-6 h-6 text-primary animate-pulse" />
+                <p className="text-3xl font-bold text-primary">
                   +{unrealizedYield.toLocaleString('en-US', { maximumFractionDigits: 2 })} STX
                 </p>
               </div>
@@ -139,7 +137,6 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Transaction Interface */}
         <div>
           <div className="flex gap-2 mb-6">
             <Button
@@ -148,9 +145,13 @@ export function Dashboard() {
                 setActiveTab('deposit')
                 setInputValue('')
               }}
-              className={activeTab === 'deposit' ? 'bg-primary text-primary-foreground' : 'border-primary/30'}
+              className={`flex-1 h-12 transition-all ${
+                activeTab === 'deposit' 
+                  ? 'bg-primary text-primary-foreground glow-orange scale-105' 
+                  : 'border-border hover:border-primary/50'
+              }`}
             >
-              <ArrowUpRight className="w-4 h-4 mr-2" />
+              <ArrowUpRight className="w-5 h-5 mr-2" />
               DEPOSIT
             </Button>
             <Button
@@ -159,30 +160,34 @@ export function Dashboard() {
                 setActiveTab('withdraw')
                 setInputValue('')
               }}
-              className={activeTab === 'withdraw' ? 'bg-primary text-primary-foreground' : 'border-primary/30'}
+              className={`flex-1 h-12 transition-all ${
+                activeTab === 'withdraw' 
+                  ? 'bg-primary text-primary-foreground glow-orange scale-105' 
+                  : 'border-border hover:border-primary/50'
+              }`}
             >
-              <ArrowDownLeft className="w-4 h-4 mr-2" />
+              <ArrowDownLeft className="w-5 h-5 mr-2" />
               WITHDRAW
             </Button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-sm font-medium mb-3 block uppercase tracking-wider text-muted-foreground">
                 {activeTab === 'deposit' ? 'STX Amount' : 'vSTX Amount'}
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <Input
                   type="number"
                   placeholder="0.00"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   disabled={!account || isLoading}
-                  className="bg-input border-border/50 text-foreground placeholder:text-muted-foreground"
+                  className="bg-input border-border text-foreground placeholder:text-muted-foreground h-14 text-lg font-medium"
                 />
                 <Button
                   variant="outline"
-                  className="border-primary/30"
+                  className="border-primary/50 hover:bg-primary/10 h-14 px-6 font-semibold hover-lift"
                   onClick={() => setInputValue(activeTab === 'deposit' ? '1000' : vstxBalance.toString())}
                   disabled={!account}
                 >
@@ -191,14 +196,14 @@ export function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-secondary/30 border border-border/50 rounded-lg p-4">
-              <p className="text-sm text-muted-foreground mb-2">
+            <div className="glass p-6 rounded-xl border-border animate-in fade-in">
+              <p className="text-sm text-muted-foreground mb-3">
                 {activeTab === 'deposit' ? 'You will receive' : 'You will get'}
               </p>
-              <p className="text-2xl font-bold">
+              <p className="text-3xl font-bold text-primary">
                 {previewAmount} {activeTab === 'deposit' ? 'vSTX' : 'STX'}
               </p>
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className="text-xs text-muted-foreground mt-3">
                 Share price: 4.85 STX per vSTX
               </p>
             </div>
@@ -206,11 +211,11 @@ export function Dashboard() {
             <Button
               onClick={activeTab === 'deposit' ? handleDeposit : handleWithdraw}
               disabled={!inputValue || isLoading || !account || isConnecting}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base font-semibold"
+              className="w-full h-14 text-base font-semibold hover-lift transition-all bg-primary hover:bg-primary/90 text-primary-foreground glow-orange"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   Processing...
                 </span>
               ) : !account ? (
